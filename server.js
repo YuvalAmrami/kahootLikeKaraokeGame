@@ -66,21 +66,3 @@ server.listen(port , ()=>{
 // });
 
 
-
-// //youtube funcs
-// app.get("/search",async (req, res, next)=> {
-//     try{
-//      const qry = req.query.search_query;
-//      const response = await youtube.search.list({
-//          part: "snippet",
-//          q: qry +"sing along",
-//      });
-//      const titles = response.data.items.map((item)=> item.snippet.defult.thumbnails);
-//      // const titles = response.data.items.map((item)=> item.snippet.title);
- 
-//      res.send(titles);
- 
-//  } catch (err) {
-//      next(err);
-//     }
-//  });

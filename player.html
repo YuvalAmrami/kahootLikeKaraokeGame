@@ -7,16 +7,31 @@
     </head>
     
     <body>
-        <label class="switch">
-            <h1>mic</h1>
-            <input type="checkbox">
-            <span class="voice-slider round" ONCLICK="print_text(this)"></span>
-          </label>
+    <label class="search" >
+          <input type="PlayerButton" class="PlayerButton" id="OpenSearch" value="Open Search" ONCLICK="replaceFunc(this)">
+          <input type="text" class="SerchBar" id="SerchBar" style="display: none;" placeholder="Search for a song">
+          <input type="button" class="PlayerButton" id="searchSingAlong" 
+                value="search sing along"  style="display: none;" ONCLICK="searchSongToSingAlong(this)" >
+          <input type="button" class="PlayerButton" id="searchKaraoke" 
+                value="search karaoke"  style="display: none;" ONCLICK="searchSongToKaraoke(this)">
+    </label>
+<br>
+<img src="mic.jpg" alt="mic" id ="micPic" style="display: none;" width="50%" >
+
+    <label class="switch" >
+        <input type="checkbox" id="mic" >
+        <span class="voice-slider round" ONCLICK="muteTheMic(this)" ></span>
+        <!-- <label for="mic">mic</label> -->
+        <br>
+        <h1>mic</h1>
+    </label>
+
 
         <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js" defer></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="player.js"></script>
     </body>
+
     
     </html>
 

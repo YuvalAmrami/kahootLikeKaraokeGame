@@ -77,5 +77,41 @@ body {
     animation: spin 1s linear infinite;
 }
 
+.PlayerButton{
+  /* background-color: #4CAF50; 
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 8px; */
+  display: inline-block;
+  padding: 15px 25px;
+  font-size: 24px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 15px;
+}
 
 
+
+.SerchBar {
+  background: rgba(0,0,0,0);
+  border: 2px solid #333;
+  border-radius: 30px;
+  color: #333;
+  font-size: 12px;
+  height: 44px;
+  line-height: 1;
+  padding: 0 0 0 37px;
+  transition: border-color .125s ease-in-out;
+  width: 250px;
+  font-size: large;
+}
