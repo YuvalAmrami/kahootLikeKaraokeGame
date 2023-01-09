@@ -1,8 +1,43 @@
-/// const and var 
-
+///////////////////////////////////////////////////////////// const and var 
+const socket = io();
+const peer = new Peer();
 var micStatus = 0;
 
-// page view
+///////////////////////////////////////////////////////////// communication settings
+
+
+socket.on('connected', async _ => {
+    console.log("new user joined");
+
+    const name = await swal("Your name:", {
+        content: "input",
+        button: "Join",
+        closeOnClickOutside: false,
+        closeOnEsc: false
+    })
+});
+
+// var conn = peer.connect('another-peers-id');
+
+// let loader = document.createElement("div")
+// loader.classList.add("loader")
+
+
+
+
+// conn.on('open' , (id)=>{
+//     console.debug("open")
+
+//     socket.emit("newUser" , id);
+// })
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////// page view
 function printText(){
     console.log("text");
 }
@@ -41,22 +76,34 @@ function muteTheMic(){
     var micPic = document.getElementById("micPic");    
     if (micStatus === 0){
         micStatus = 1;
-        micPic.style.display = "block";
+        micPic.style.filter = "grayscale(0%)";
     }else{
         micStatus = 0;
-        micPic.style.display = "none";
+        micPic.style.filter = "grayscale(100%)";
     }
 }
 
-//youtube funcs
+////////////////////////////////////////////////////////////////// youtube funcs
 function searchSong(added_texy){
     console.log(added_texy);
-    // const qry = req.query.search_query;
+    const qry = document.getElementById('SerchBar').value;
+    document.getElementById('SerchBar').value = null;
+    console.log(qry);
+
+    socket.emit("searchSong",(qry));
+
+    socket.on("answer",(ans)=>{
+        console.log(ans);
+
+    })
+
     // const response = youtube.search.list({
     //     part: "snippet",
     //     q: qry +added_texy,
     // });
-    // const titles = response.data.items.map((item)=> item.snippet.defult.thumbnails);
+    // const thumbnails = response.data.items.map((item)=> item.snippet.defult.thumbnails);
+    // const titles = response.data.items.map((item)=> item.snippet.defult.title);
+
 }
 
 function searchSongToSingAlong(){

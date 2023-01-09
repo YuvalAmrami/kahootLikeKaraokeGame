@@ -47,7 +47,40 @@ const path = require('path');
     res.sendFile(path.join(__dirname, '/player.html'));
   });
 
+//youtube api
 
+io.on('connection', (socket) => {
+  console.log("A user connected!")
+
+  socket.emit('connected')
+
+  socket.on("searchSong", async (qry)=> {
+    console.log(qry)
+    socket.emit('answer','ans '+qry)
+  })
+  //   try{
+  //     const response = await youtube.search.list({
+  //         part: "snippet",
+  //         q: qry,
+  //     });
+  //     const thumbnails = response.data.items.map((item)=> item.snippet.defult.thumbnails);
+  //     const titles = response.data.items.map((item)=> item.snippet.title);
+
+  //     res.send(thumbnails, titles);
+
+  // } catch (err) {
+  //   next(err);
+  //   }
+  });
+
+  
+// });
+
+
+
+
+
+//SERVER 
 server.listen(port , ()=>{
 	console.log("Server running on port " + port);
 })
