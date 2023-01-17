@@ -1,15 +1,19 @@
-
+<!DOCTYPE html>
 <html>
+<head>
+    <title> Home Karaoke! </title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+  <body>
+    
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js" defer></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="host.js"></script>
+    
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="player"></div>
+    <input type="button" class="PlayerButton" id="nextVid" 
+    value="move to the next video"  ONCLICK="nextOnQ(this)">
 
-    <head>
-        <title> Quiz Platform </title>
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    
-    <body>
-        <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js" defer></script>
-        <script src="/socket.io/socket.io.js"></script>
-        <script src="host.js"></script>
-    </body>
-    
-    </html>
+</body>
+</html>

@@ -9,12 +9,12 @@ var micStatus = 0;
 socket.on('connected', async _ => {
     console.log("new user joined");
 
-    const name = await swal("Your name:", {
-        content: "input",
-        button: "Join",
-        closeOnClickOutside: false,
-        closeOnEsc: false
-    })
+    // const name = await swal("Your name:", {
+    //     content: "input",
+    //     button: "Join",
+    //     closeOnClickOutside: false,
+    //     closeOnEsc: false
+    // })
 });
 
 // var conn = peer.connect('another-peers-id');
@@ -23,15 +23,11 @@ socket.on('connected', async _ => {
 // loader.classList.add("loader")
 
 
-
-
 // conn.on('open' , (id)=>{
 //     console.debug("open")
 
 //     socket.emit("newUser" , id);
 // })
-
-
 
 
 
@@ -84,17 +80,19 @@ function muteTheMic(){
 }
 
 ////////////////////////////////////////////////////////////////// youtube funcs
-function searchSong(added_texy){
-    console.log(added_texy);
-    const qry = document.getElementById('SerchBar').value;
+function searchSong(added_text){
+    console.log(added_text);
+    let qry = document.getElementById('SerchBar').value;
     document.getElementById('SerchBar').value = null;
     console.log(qry);
-
+    qry = qry+" "+added_text;
+    console.log(qry);
     socket.emit("searchSong",(qry));
 
-    socket.on("answer",(ans)=>{
-        console.log(ans);
-
+    socket.on("answer",(titles,thumbnails)=>{
+        console.log(titles);
+        console.log(thumbnails);
+        // thumbnails
     })
 
     // const response = youtube.search.list({
@@ -108,6 +106,12 @@ function searchSong(added_texy){
 
 function searchSongToSingAlong(){
     searchSong("sing along");
+    replaceFunc();
+}
+
+
+function searchSongLyrics(){
+    searchSong("Lyrics");
     replaceFunc();
 }
 

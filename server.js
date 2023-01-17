@@ -33,10 +33,10 @@ app.use("/peerjs", peerServer);
 
 //HTML
 app.engine('html', require('ejs').renderFile);
+
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname));
 const path = require('path');
-
 
 // Handling get request
   app.get('/', function(req, res) {
@@ -54,29 +54,35 @@ io.on('connection', (socket) => {
 
   socket.emit('connected')
 
-  socket.on("searchSong", async (qry)=> {
+  socket.on("searchSong",  async (qry)=> {
     console.log(qry)
-    socket.emit('answer','ans '+qry)
-  })
-  //   try{
-  //     const response = await youtube.search.list({
-  //         part: "snippet",
-  //         q: qry,
-  //     });
-  //     const thumbnails = response.data.items.map((item)=> item.snippet.defult.thumbnails);
-  //     const titles = response.data.items.map((item)=> item.snippet.title);
+  // })
+    try{
+      const response = await youtube.search.list({
+        part: "snippet",
+        q: qry,
+      });
 
-  //     res.send(thumbnails, titles);
+      const titles = response.data.items.map((item)=> item.snippet.title);      
+      const thumbnails = response.data.items.map((item)=> item.snippet.thumbnails);
+      const ids = response.data.items.map((item)=> item.id);
+      // console.log(titles)
+      // console.log(thumbnails)
+      // console.log(ids)
 
-  // } catch (err) {
-  //   next(err);
-  //   }
+      socket.emit('answer', (titles,thumbnails))
+      // await   socket.on("choise", index=> {
+          let index = 0;  
+        if (index!= -1){
+          io.emit('newVid', ids[index])
+        }
+      // })
+
+  } catch (err) {
+    console.log(err);
+    }
   });
-
-  
-// });
-
-
+});
 
 
 
