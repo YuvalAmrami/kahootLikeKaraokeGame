@@ -5,7 +5,7 @@ a karaoke system that operates like a Kahoot game.
 Instead of using expansive dedicated equipment, the microphone will be your own phone, and the karaoke screen your computer or smart tv.
 
 node js packeges in use:
-express
-googleapis
-socket.io
+express,
+googleapis,
+socket.io,
 peer
