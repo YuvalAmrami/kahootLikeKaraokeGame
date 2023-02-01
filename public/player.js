@@ -2,6 +2,8 @@
 const socket = io();
 const peer = new Peer();
 var micStatus = 0;
+var titles = [];
+var thumbnails = [];
 
 ///////////////////////////////////////////////////////////// communication settings
 
@@ -47,7 +49,7 @@ function hideFunc(element) {
     }
   }
 
-function replaceFunc(){
+function replaceSearchFunc(){
     var OpenSearch = document.getElementById("OpenSearch");    
     var searchKaraoke = document.getElementById("searchKaraoke");
     var searchSingAlong = document.getElementById("searchSingAlong");    
@@ -66,58 +68,74 @@ function replaceFunc(){
     }
   }
 
+function openSearchResult() {
+    document.getElementById("searchResult").style.width = "100%";
+}
+
+function closeSearchResult() {
+    document.getElementById("searchResult").style.width = "0%";
+}
 
 //sound
 function muteTheMic(){
     var micPic = document.getElementById("micPic");    
     if (micStatus === 0){
         micStatus = 1;
-        micPic.style.filter = "grayscale(0%)";
+        micPic.style.filter = "grayscale(100%)";
     }else{
         micStatus = 0;
-        micPic.style.filter = "grayscale(100%)";
+        micPic.style.filter = "grayscale(0%)";
     }
 }
 
 ////////////////////////////////////////////////////////////////// youtube funcs
-function searchSong(added_text){
-    console.log(added_text);
-    let qry = document.getElementById('SerchBar').value;
-    document.getElementById('SerchBar').value = null;
+function searchSong(SearchTextBy){
+    let qry = document.getElementById('SearchBar').value;
+    document.getElementById('SearchBar').value = null;
+    qry = qry+" "+SearchTextBy;
     console.log(qry);
-    qry = qry+" "+added_text;
-    console.log(qry);
+        ///sending a new song for the server to search
     socket.emit("searchSong",(qry));
-
-    socket.on("answer",(titles,thumbnails)=>{
-        console.log(titles);
-        console.log(thumbnails);
-        // thumbnails
+    //adding results of search to a search overlay
+    socket.on("answer", srcAns =>{
+        titles = srcAns[0];
+        thumbnails =  srcAns[1];
+        for (let i = 0; i < 5; i++){
+            let thumbnaile = thumbnails[i];
+            let elementId = "searchResult" + String(i);
+            var sechRes = document.getElementById(elementId);
+            sechRes.innerHTML  = titles[i];
+            var newline = document.createElement("br");
+            sechRes.appendChild(newline);
+            var img = document.createElement("img");
+            img.src =thumbnaile.url;
+            img.width = thumbnaile.width;
+            img.height = thumbnaile.height;
+            sechRes.appendChild(img);
+        }
+        openSearchResult();
     })
-
-    // const response = youtube.search.list({
-    //     part: "snippet",
-    //     q: qry +added_texy,
-    // });
-    // const thumbnails = response.data.items.map((item)=> item.snippet.defult.thumbnails);
-    // const titles = response.data.items.map((item)=> item.snippet.defult.title);
-
 }
 
 function searchSongToSingAlong(){
     searchSong("sing along");
-    replaceFunc();
-}
-
-
-function searchSongLyrics(){
-    searchSong("Lyrics");
-    replaceFunc();
+    replaceSearchFunc();
 }
 
 function searchSongToKaraoke(){
     searchSong("karaoke");
-    replaceFunc();
+    replaceSearchFunc();
+}
+
+// function searchSongLyrics(){
+//     searchSong("Lyrics");
+//     replaceSearchFunc();
+// }
+
+//answer on the search results based on titles and thumbnails 
+function sendChosenSong(sngIndex){
+    socket.emit("ChosenSong",sngIndex);
+    closeSearchResult();
 }
 
 

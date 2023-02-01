@@ -7,11 +7,11 @@ var vidQueue = [];
 
 // from https://developers.google.com/youtube/iframe_api_reference:
 // loads the IFrame Player API code asynchronously.
-var tag = document.createElement('script');
+var youtubeIframe_api = document.createElement('script');
 
-tag.src = "https://www.youtube.com/iframe_api";
+youtubeIframe_api.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+firstScriptTag.parentNode.insertBefore(youtubeIframe_api, firstScriptTag);
 
 //    This function creates an <iframe> (and YouTube player)
 //    after the API code downloads.
@@ -21,6 +21,7 @@ var player;
     player = new YT.Player('player', {
       height: '390',
       width: '640',
+      //template video encanto Surface pressure
       videoId: 'tQwVKr8rCYw',
       playerVars: {
         'playsinline': 1
@@ -38,7 +39,6 @@ function onPlayerReady(event) {
 
 
 //  when a video ends the next video on the queue will be played 
-
 function onPlayerStateChange(event) {
   if((event.data == YT.PlayerState.ENDED ) && (vidQueue.length > 0) ){
     nextOnQ();
@@ -51,8 +51,7 @@ function stopVideo() {
 
 function nextOnQ(){
   var nextVid = vidQueue.shift();
-  player.loadVideoById(nextVid)
-
+  player.loadVideoById(nextVid);
 }
 
 
@@ -64,11 +63,10 @@ socket.on('connected', async _ => {
 
 //adding new videos to the q
 socket.on("newVid",(ID)=>{
-    console.log(ID)
     if (vidQueue.length == 0 && (player.getPlayerState() != YT.PlayerState.PLAYING)){
       player.loadVideoById(ID.videoId);
     }else{
-    vidQueue.push(ID.videoId);
+      vidQueue.push(ID.videoId);
     }
 })
 

@@ -6,19 +6,32 @@
     </head>
     
     <body>
+        
+<div id="searchResult" class="overlay">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeSearchResult()">&times;</a>
+    <div class="overlay-content">
+        <a id = "searchResult0" ONCLICK="sendChosenSong(0)" ></a>
+        <a id = "searchResult1" ONCLICK="sendChosenSong(1)" ></a>
+        <a id = "searchResult2" ONCLICK="sendChosenSong(2)" ></a>
+        <a id = "searchResult3" ONCLICK="sendChosenSong(3)" ></a>
+        <a id = "searchResult4" ONCLICK="sendChosenSong(4)" ></a>
+    </div>
+  </div>
+  
+  
     <label class="search" >
-          <input type="PlayerButton" class="PlayerButton" id="OpenSearch" value="Open Search" ONCLICK="replaceFunc(this)">
-          <input type="text" class="SerchBar" id="SerchBar" style="display: none;" placeholder="Search for a song">
+          <input type="PlayerButton" class="PlayerButton" id="OpenSearch" value="Open Search" ONCLICK="replaceSearchFunc(this)">
+          <input type="text" class="SearchBar" id="SearchBar" style="display: none;" placeholder="Search for a song">
           <input type="button" class="PlayerButton" id="searchSingAlong" 
                 value="search sing along"  style="display: none;" ONCLICK="searchSongToSingAlong(this)" >
           <input type="button" class="PlayerButton" id="searchKaraoke" 
                 value="search karaoke"  style="display: none;" ONCLICK="searchSongToKaraoke(this)">
     </label>
 <br>
-<img src="mic.jpg" alt="mic" id ="micPic" style="display: block; filter: grayscale(100%);" width="50%" >
+<img src="mic2.jpg" alt="mic" id ="micPic" style="display: block; filter: grayscale(100%);" width="50%" >
 
     <label class="switch" >
-        <input type="checkbox" id="mic" >
+        <input type="checkbox" id="microphone" >
         <span class="voice-slider round" ONCLICK="muteTheMic(this)" ></span>
         <!-- <label for="mic">mic</label> -->
         <br>
