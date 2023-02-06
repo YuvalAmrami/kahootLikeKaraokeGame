@@ -8,4 +8,5 @@ node js packeges in use:
 express,
 googleapis,
 socket.io,
+ejs,
 peer
