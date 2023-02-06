@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="styles.css">
     </head>
     
-    <body>
+    <body style="text-align: center;">
         
 <div id="searchResult" class="overlay">
     <a href="javascript:void(0)" class="closebtn" onclick="closeSearchResult()">&times;</a>
@@ -19,7 +19,7 @@
   </div>
   
   
-    <label class="search" >
+    <label class="search"  style="text-align: center;">
           <input type="PlayerButton" class="PlayerButton" id="OpenSearch" value="Open Search" ONCLICK="replaceSearchFunc(this)">
           <input type="text" class="SearchBar" id="SearchBar" style="display: none;" placeholder="Search for a song">
           <input type="button" class="PlayerButton" id="searchSingAlong" 
@@ -28,14 +28,13 @@
                 value="search karaoke"  style="display: none;" ONCLICK="searchSongToKaraoke(this)">
     </label>
 <br>
-<img src="mic2.jpg" alt="mic" id ="micPic" style="display: block; filter: grayscale(100%);" width="50%" >
-
+<img src="mic2.jpg" alt="mic" id ="micPic" style="display: inline-block; filter: grayscale(100%); margin-left: auto;    margin-right: auto;" width="50%" >
     <label class="switch" >
         <input type="checkbox" id="microphone" >
         <span class="voice-slider round" ONCLICK="muteTheMic(this)" ></span>
-        <!-- <label for="mic">mic</label> -->
         <br>
-        <h1>mic</h1>
+        <br>
+        <h1 id="microphoneText">off</h1>
     </label>
 
 

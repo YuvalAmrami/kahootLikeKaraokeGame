@@ -6,15 +6,13 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const port  = 4000;
 
-// //for event base actions
-// const events = require('events');
-// const timeUpEvent = new events.EventEmitter();
-
 //peer settings
 const { ExpressPeerServer } = require("peer");
 const peerServer = ExpressPeerServer(server, {
     debug: true,
     });
+const { v4: uuidv4 } = require("uuid"); // for unique id
+var uidList = [];
 
 //youtube settings 
 const {google} = require("googleapis");
@@ -25,33 +23,41 @@ const youtube = google.youtube({
     auth: apiKey
 });
 
-// Setting the public folder as a folder base
-app.use(express.static("public"));
+
 
 //HTML
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'ejs');
 
-// setting the peer communications
+// setting the peer communications server
 app.use("/peerjs", peerServer);
+
 
 
 // serving the HTML files and Handling get request
 app.use(express.static(__dirname));
 const path = require('path');
-  app.get('/:host', function(req, res) {
-    res.sendFile(path.join(__dirname, 'public/host.html'));
+const { json } = require("express");
+  app.get('/host*', function(req, res) {
+    res.sendFile(path.join(__dirname, 'host.html'));
+  });
+  app.get('/player*', function(req, res) {
+    res.sendFile(path.join(__dirname, 'player.html'));
+  });
+  app.get('/', function(req, res) { 
+    res.redirect('player');
   });
 
-  app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, 'public/player.html'));
-  });
 
 //communication
 io.on('connection', (socket) => {
   console.log("A user connected!")
+  let newUid = uuidv4();
+  uidList.push(newUid);
+  var connectionInfo = {"port":port,"uid":newUid};
+  
+  socket.emit('connected',connectionInfo)
 
-  socket.emit('connected')
 
   ////youtube api: a player sends a new song search req and the server is youtube searching it.
   socket.on("searchSong",  async (qry)=> {
@@ -63,7 +69,7 @@ io.on('connection', (socket) => {
       const titles = response.data.items.map((item)=> item.snippet.title);      
       const thumbnails = response.data.items.map((item)=> item.snippet.thumbnails.high);
       const ids = response.data.items.map((item)=> item.id);
-      let answer = [titles,thumbnails]
+      let answer = {'titles':titles,"thumbnails":thumbnails}
       socket.emit('answer', answer)
       //the server asks the player to choose one of the 5 first search results based on titles and thumbnails
       await socket.on("ChosenSong", index=> {
