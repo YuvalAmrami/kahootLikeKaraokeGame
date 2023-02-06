@@ -104,6 +104,8 @@ body {
   transition: border-color .125s ease-in-out;
   width: 250px;
   font-size: large;
+  position: sticky;
+  
 }
 
 .overlay {

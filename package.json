@@ -11,6 +11,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "googleapis": "^109.0.1",
+    "peer": "^0.6.1",
+    "peerjs": "^1.4.7",
     "socket.io": "^4.5.4",
     "uuid": "^9.0.0"
   }

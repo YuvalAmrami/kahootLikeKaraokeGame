@@ -18,27 +18,36 @@
     </div>
   </div>
   
-  
-    <label class="search"  style="text-align: center;">
+  <div style="text-align: center;">
+    <div>
+    <div><h1 id="roomName" style="display: none;">romenumber</h1></div>
+        <div id=hostNameSearch>
+            <input type="text" class="SearchBar" id="roomNameSearch" placeholder="Connect To Host Room: ">
+            <input type="button" class="PlayerButton" id="HostSearcBtn" 
+            value="look for host id"  ONCLICK="joinHostRoom(this)">
+        </div>
+    </div>
+    <br>    
+    <label class="search"  >
           <input type="PlayerButton" class="PlayerButton" id="OpenSearch" value="Open Search" ONCLICK="replaceSearchFunc(this)">
           <input type="text" class="SearchBar" id="SearchBar" style="display: none;" placeholder="Search for a song">
+          <br>
           <input type="button" class="PlayerButton" id="searchSingAlong" 
                 value="search sing along"  style="display: none;" ONCLICK="searchSongToSingAlong(this)" >
           <input type="button" class="PlayerButton" id="searchKaraoke" 
                 value="search karaoke"  style="display: none;" ONCLICK="searchSongToKaraoke(this)">
     </label>
-<br>
-<img src="mic2.jpg" alt="mic" id ="micPic" style="display: inline-block; filter: grayscale(100%); margin-left: auto;    margin-right: auto;" width="50%" >
+    <br>
+    <img src="mic2.jpg" alt="mic" id ="micPic" style="display: inline-block; filter: grayscale(100%); margin-left: auto;    margin-right: auto;" width="50%" >
     <label class="switch" >
         <input type="checkbox" id="microphone" >
-        <span class="voice-slider round" ONCLICK="muteTheMic(this)" ></span>
-        <br>
+        <bou class="voice-slider round" ONCLICK="muteTheMic()" ></span>
         <br>
         <h1 id="microphoneText">off</h1>
     </label>
+</div>
 
-
-        <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js" defer></script>
+        <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js" ></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="player.js"></script>
     </body>

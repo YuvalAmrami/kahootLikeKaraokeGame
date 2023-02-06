@@ -1,7 +1,11 @@
 ///////////////////////////////////////////////////////////// const and var 
 const socket = io();
-// const peer = new Peer();
+var thisHostUid;
+var thisHostName;
+var localPort;
+const peer = new Peer();
 var vidQueue = []; 
+
 
 ///////////////////////////////////////////////////////////// youtube API
 
@@ -54,12 +58,37 @@ function nextOnQ(){
   player.loadVideoById(nextVid);
 }
 
+function setRoomName(){
+  var roomName = document.getElementById('roomName');
+  roomName.innerHTML = "Room name is: "+thisHostName;
+
+}
 
 ///////////////////////////////////////////////////////////// connection to the server
 
-socket.on('connected', async _ => {
-  console.log("new host");
+socket.on('connected', async (connectionInfo)=> {
+  thisHostUid = connectionInfo.uid;
+  localPort = connectionInfo.port
+  console.log("new host joined: " + thisHostUid);
+  
+  socket.emit('hostConnection',thisHostUid);
+  
+  await socket.on('hostName', (hostName)=> {
+    thisHostName = hostName;
+    SetPeerinfo()
+
+    setRoomName();
+  });
 })
+
+function SetPeerinfo(){
+  myPeer = new Peer(thisHostName, {
+      path: "/peerjs",
+      host: "/",
+      port: localPort,
+    });
+}
+
 
 //adding new videos to the q
 socket.on("newVid",(ID)=>{

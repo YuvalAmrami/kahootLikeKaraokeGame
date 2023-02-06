@@ -13,6 +13,7 @@ const peerServer = ExpressPeerServer(server, {
     });
 const { v4: uuidv4 } = require("uuid"); // for unique id
 var uidList = [];
+var hostsUidNames = new Map();
 
 //youtube settings 
 const {google} = require("googleapis");
@@ -56,8 +57,24 @@ io.on('connection', (socket) => {
   uidList.push(newUid);
   var connectionInfo = {"port":port,"uid":newUid};
   
-  socket.emit('connected',connectionInfo)
+  socket.emit('connected',connectionInfo);
 
+// //supporting mulity Host Rooms in the future
+  socket.on('hostConnection',(hostId)=>{
+    let hostEasyName = Math.floor(Math.random() *1000000);
+    hostsUidNames.set(hostEasyName,hostId);
+    socket.join(hostEasyName);
+    socket.emit('hostName',hostEasyName);
+  });
+
+  socket.on("joinHostRoom", (hostName, userId) => {
+    // let hostId = hostsUidNames.get(hostName);
+    let hostId = hostName;
+    socket.join(hostId);
+    let connectionInfo = {"hostId":hostId,"userId":userId}
+    socket.to(hostId).broadcast.emit("newPlayer", connectionInfo);
+
+    });
 
   ////youtube api: a player sends a new song search req and the server is youtube searching it.
   socket.on("searchSong",  async (qry)=> {

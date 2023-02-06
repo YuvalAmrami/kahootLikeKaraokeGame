@@ -1,60 +1,59 @@
 ///////////////////////////////////////////////////////////// const and var 
+// import { Peer } from "peerjs";
 const socket = io();
 var micStatus = 0;
 var titles = [];
 var thumbnails = [];
 var thisUserUid;
-var port = 4000;
-var myPeer 
-// = new Peer(undefined, {
-//     path: "/peerjs",
-//     host: "/",
-//     port: port,
-//   });
+var localPort = 4000;
+var myPeer = new Peer();
 let myVoiceStream;
 
 //voice setting
-navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+
+// navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia
+//  || navigator.mozGetUserMedia || navigator.msGetUserMedia);
   
-// navigator.getUserMedia({
-//     video: false,
-//     audio: true
-// }).then((stream) => {
-//     myVoiceStream = stream;
-//     peer.on("call", (call) => {
-//         call.answer(stream);
-//         const myVoice = document.createElement("audio");
-//         call.on("stream", (userVoiceStream) => {
-//             addVoiceStream(myVoice, userVoiceStream);
-//         });
-//     });
-//     socket.on('connected', async (connectionInfo)=> {
-//         thisUserUid = connectionInfo.uid;
-//         port = connectionInfo.port
-//         console.log("new user joined: " + thisUserUid);
-//         SetPeerinfo(port);
-//         connectToNewUser(thisUserUid, stream)
-//     });
-// }); 
+navigator.mediaDevices.getUserMedia({
+    video: false,
+    audio: true
+}).then((stream) => {
+    myVoiceStream = stream;
+    myPeer.on("call", (call) => {
+        call.answer(stream);
+        const myVoice = document.createElement("audio");
+        call.on("stream", (userVoiceStream) => {
+            addVoiceStream(myVoice, userVoiceStream);
+        });
+    });
+    socket.on('connected', async (connectionInfo)=> {
+        thisUserUid = connectionInfo.uid;
+        localPort = connectionInfo.port
+        console.log("new user joined: " + thisUserUid);
+        SetPeerinfo();
+        connectToNewUser(thisUserUid, stream)
+    });
+}); 
 
-// const connectToNewUser = (userId, stream) => {
-//     const call = peer.call(userId, stream);
-//     const voice = document.createElement("audio");
-//     call.on("stream", (userVideoStream) => {
-//         addVoiceStream(voice, userVideoStream);
-//     });
-// };
-// peer.on("open", (id) => {
-//     socket.emit("join-room", ROOM_ID, id);
-// });
+const connectToNewUser = (userId, stream) => {
+    const call = myPeer.call(userId, stream);
+    const voice = document.createElement("audio");
+    call.on("stream", (userVideoStream) => {
+        addVoiceStream(voice, userVideoStream);
+    });
+};
+
+myPeer.on("open", (id) => {
+    socket.emit("join-room", thisUserUid, id);
+});
 
 
-// const addVoiceStream = (voice, stream) => {
-//     voice.srcObject = stream;
-//     voice.addEventListener("loadedmetadata", () => {
-//         voice.play();
-//     });
-// };
+const addVoiceStream = (voice, stream) => {
+    voice.srcObject = stream;
+    voice.addEventListener("loadedmetadata", () => {
+        voice.play();
+    });
+};
 
 
 ///////////////////////////////////////////////////////////// communication settings
@@ -72,18 +71,12 @@ navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia
 // };
 
 
-socket.on('connected', async (connectionInfo)=> {
-    thisUserUid = connectionInfo.uid;
-    port = connectionInfo.port
-    console.log("new user joined: " + thisUserUid);
-    SetPeerinfo(port);
-    // const name = await swal("Your name:", {
-    //     content: "input",
-    //     button: "Join",
-    //     closeOnClickOutside: false,
-    //     closeOnEsc: false
-    // })
-});
+// socket.on('connected', async (connectionInfo)=> {
+//     thisUserUid = connectionInfo.uid;
+//     port = connectionInfo.port
+//     console.log("new user joined: " + thisUserUid);
+//     SetPeerinfo(port);
+// });
 
 // var conn = peer.connect('another-peers-id');
 
@@ -102,6 +95,7 @@ socket.on('connected', async (connectionInfo)=> {
 
 
 ///////////////////////////////////////////////////////////// page view
+
 function printText(){
     console.log("text");
 }
@@ -119,17 +113,17 @@ function replaceSearchFunc(){
     var OpenSearch = document.getElementById("OpenSearch");    
     var searchKaraoke = document.getElementById("searchKaraoke");
     var searchSingAlong = document.getElementById("searchSingAlong");    
-    var SerchBar = document.getElementById("SerchBar");
+    var SearchBar = document.getElementById("SearchBar");
     if (OpenSearch.style.display === "none") {
         OpenSearch.style.display = "inline-block";
         searchKaraoke.style.display = "none";
         searchSingAlong.style.display = "none";
-        SerchBar.style.display = "none";
+        SearchBar.style.display = "none";
     } else {
         OpenSearch.style.display = "none";
         searchKaraoke.style.display ="inline-block";
         searchSingAlong.style.display ="inline-block";
-        SerchBar.style.display = "block";
+        SearchBar.style.display = "inline-block";
     }
   }
 
@@ -145,26 +139,52 @@ function closeSearchResult() {
 function muteTheMic(){
     var micPic = document.getElementById("micPic"); 
     var slider = document.getElementById("microphoneText");    
-
-    if (micStatus === 0){
-        micStatus = 1;
+    if (micStatus === 1){
+        micStatus = 0;
         micPic.style.filter = "grayscale(100%)";
         slider.innerHTML = "off"
-    }else{
-        micStatus = 0;
+    }else {
+        micStatus = 1;
         micPic.style.filter = "grayscale(0%)";
         slider.innerHTML = "on"
     }
 }
 
+//peer to peer
 
-function SetPeerinfo(port){
+
+function SetPeerinfo(){
     myPeer = new Peer(thisUserUid, {
         path: "/peerjs",
         host: "/",
-        port: port,
+        port: localPort,
       });
 }
+
+function joinHostRoom(){
+    const hostSearch = document.getElementById("roomNameSearch");
+    const hostNameSearch = document.getElementById("hostNameSearch");
+    
+    hostId = hostSearch.value;
+    hostSearch.value = null;
+    hostNameSearch.style.display = "none";
+
+    socket.emit("joinHostRoom", (hostId, thisUserUid));
+    socket.on("newPlayer", (connectionInfo)=>{
+        if (thisUserUid === connectionInfo.userId){
+            connectionWasEstablished(connectionInfo.hostId)
+        }
+    
+    })
+}
+
+function connectionWasEstablished(hostId){
+    var roomName = document.getElementById('roomName');
+    roomName.innerHTML = "Connected to host room : "+hostId;
+    roomName.style.display = "inline-block";
+}
+
+
 
 
 ////////////////////////////////////////////////////////////////// youtube funcs
