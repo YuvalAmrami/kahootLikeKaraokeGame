@@ -1,15 +1,36 @@
+// const { default: Peer } = require("peerjs");
+
 ///////////////////////////////////////////////////////////// const and var 
-// import { Peer } from "peerjs";
 const socket = io();
-var micStatus = 0;
+
+var thisUserUid;
+// var localPeerPort = 4001;
+var myPeer = new Peer();
+var myVoiceStream;
+var currentCall;
+var peerID;
+var thisPlayerName;
+var thisHostId;
+
 var titles = [];
 var thumbnails = [];
-var thisUserUid;
-var localPort = 4000;
-var myPeer = new Peer();
-let myVoiceStream;
+let myNumOfResult = 5;
 
-//voice setting
+var micStatus = 1;
+
+// view elements
+const PlayerNameInputBar = document.getElementById("playerNameInputBar");    
+const PlayerNameInput = document.getElementById("playerNameInput");
+const PlayerName = document.getElementById("playerName");
+
+const searchResultDiv = document.getElementById("searchResultDiv");
+const SearchBar =document.getElementById("SearchBar");
+
+const hostSearch = document.getElementById("roomNameSearch");
+const hostNameSearch = document.getElementById("hostNameSearch");
+const roomName = document.getElementById("roomName");
+
+//////////////////////////////////////voice setting
 
 // navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia
 //  || navigator.mozGetUserMedia || navigator.msGetUserMedia);
@@ -20,43 +41,72 @@ navigator.mediaDevices.getUserMedia({
 }).then((stream) => {
     myVoiceStream = stream;
     myPeer.on("call", (call) => {
+        currentCall = call;
         call.answer(stream);
-        const myVoice = document.createElement("audio");
-        call.on("stream", (userVoiceStream) => {
-            addVoiceStream(myVoice, userVoiceStream);
+        call.on("stream", () => {
         });
     });
-    socket.on('connected', async (connectionInfo)=> {
-        thisUserUid = connectionInfo.uid;
-        localPort = connectionInfo.port
-        console.log("new user joined: " + thisUserUid);
-        SetPeerinfo();
-        connectToNewUser(thisUserUid, stream)
+    socket.on("connected",()=>{
+        console.log("NewUser userId: " + socket.id);
+
+
+        socket.on("host-disconnected", (serial)=>{
+            if (serial==thisHostId){
+                alert("host disconnected")
+                ThisHostId = "?";
+                roomName.innerHTML = "Connected to host room : ?";
+                hostNameSearch.style.display = "inline-block";
+                roomName.style.display = "none";
+
+            }
+        })
+
+        // socket.on("hostPeerInfo", (hostPeerId)=>{
+        //     console.log("hostPeerInfo: " + hostPeerId);
+        //     connectToNewHost(hostPeerId , myVoiceStream);
+        // })
+    
+
     });
+}).catch(err=>{
+    alert(err.message)
 }); 
 
-const connectToNewUser = (userId, stream) => {
-    const call = myPeer.call(userId, stream);
-    const voice = document.createElement("audio");
-    call.on("stream", (userVideoStream) => {
-        addVoiceStream(voice, userVideoStream);
-    });
+
+
+
+function connectToNewHost(hostPeerId, stream) {
+    console.log("connectToNewHost hostPeerId: " + hostPeerId);
+    console.log("connectToNewHost stream: " + stream);
+    
+    currentCall = myPeer.call(hostPeerId, stream);
+    currentCall.emit("playerName", thisPlayerName);
+
+    console.log("connectToNewHost currentCall: " + currentCall.toString());
+    
+                hostNameSearch.style.display = "none";
+
+    // const voice = document.createElement("audio");
+    // call.on("stream", (userVideoStream) => {
+    //     // addVoiceStream(voice, userVideoStream);
+    // });
 };
 
-myPeer.on("open", (id) => {
-    socket.emit("join-room", thisUserUid, id);
-});
 
 
-const addVoiceStream = (voice, stream) => {
-    voice.srcObject = stream;
-    voice.addEventListener("loadedmetadata", () => {
-        voice.play();
-    });
+function micStreamOff(){
+    myVoiceStream.getAudioTracks()[0].enabled = false;
 };
-
+function micStreamOn(){
+    myVoiceStream.getAudioTracks()[0].enabled = true; 
+};
 
 ///////////////////////////////////////////////////////////// communication settings
+
+myPeer.on("open", (id) => {
+    peerID = id;
+});
+
 
 // myPeer.on('open', function() {
 //     console.log('My PeerJS ID is:', myPeer.id);
@@ -84,126 +134,33 @@ const addVoiceStream = (voice, stream) => {
 // loader.classList.add("loader")
 
 
-// conn.on('open' , (id)=>{
-//     console.debug("open")
-
-//     socket.emit("newUser" , id);
-// })
 
 
 
 
 
-///////////////////////////////////////////////////////////// page view
 
-function printText(){
-    console.log("text");
-}
-
-function hideFunc(element) {
-    var x = document.getElementById(element);
-    if (x.style.display === "none") {
-      x.style.display = "inline-block";
-    } else {
-      x.style.display = "none";
-    }
-  }
-
-function replaceSearchFunc(){
-    var OpenSearch = document.getElementById("OpenSearch");    
-    var searchKaraoke = document.getElementById("searchKaraoke");
-    var searchSingAlong = document.getElementById("searchSingAlong");    
-    var SearchBar = document.getElementById("SearchBar");
-    if (OpenSearch.style.display === "none") {
-        OpenSearch.style.display = "inline-block";
-        searchKaraoke.style.display = "none";
-        searchSingAlong.style.display = "none";
-        SearchBar.style.display = "none";
-    } else {
-        OpenSearch.style.display = "none";
-        searchKaraoke.style.display ="inline-block";
-        searchSingAlong.style.display ="inline-block";
-        SearchBar.style.display = "inline-block";
-    }
-  }
-
-function openSearchResult() {
-    document.getElementById("searchResult").style.width = "100%";
-}
-
-function closeSearchResult() {
-    document.getElementById("searchResult").style.width = "0%";
-}
-
-//sound
-function muteTheMic(){
-    var micPic = document.getElementById("micPic"); 
-    var slider = document.getElementById("microphoneText");    
-    if (micStatus === 1){
-        micStatus = 0;
-        micPic.style.filter = "grayscale(100%)";
-        slider.innerHTML = "off"
-    }else {
-        micStatus = 1;
-        micPic.style.filter = "grayscale(0%)";
-        slider.innerHTML = "on"
-    }
-}
-
-//peer to peer
-
-
-function SetPeerinfo(){
-    myPeer = new Peer(thisUserUid, {
-        path: "/peerjs",
-        host: "/",
-        port: localPort,
-      });
-}
-
-function joinHostRoom(){
-    const hostSearch = document.getElementById("roomNameSearch");
-    const hostNameSearch = document.getElementById("hostNameSearch");
-    
-    hostId = hostSearch.value;
-    hostSearch.value = null;
-    hostNameSearch.style.display = "none";
-
-    socket.emit("joinHostRoom", (hostId, thisUserUid));
-    socket.on("newPlayer", (connectionInfo)=>{
-        if (thisUserUid === connectionInfo.userId){
-            connectionWasEstablished(connectionInfo.hostId)
-        }
-    
-    })
-}
-
-function connectionWasEstablished(hostId){
-    var roomName = document.getElementById('roomName');
-    roomName.innerHTML = "Connected to host room : "+hostId;
-    roomName.style.display = "inline-block";
-}
 
 
 
 
 ////////////////////////////////////////////////////////////////// youtube funcs
 function searchSong(SearchTextBy){
-    let qry = document.getElementById('SearchBar').value;
-    document.getElementById('SearchBar').value = null;
+    let qry = SearchBar.value;
+    SearchBar.value = null;
     qry = qry+" "+SearchTextBy;
     console.log(qry);
         ///sending a new song for the server to search
-    socket.emit("searchSong",(qry));
+    socket.emit("searchSong",({"qry":qry,"NumOfResult":myNumOfResult}));
     //adding results of search to a search overlay
-    socket.on("answer", srcAns =>{
-        titles = srcAns.titles;
-        thumbnails =  srcAns.thumbnails;
-        for (let i = 0; i < 5; i++){
+    socket.on("answer", srchAns =>{
+        titles = srchAns.titles;
+        thumbnails =  srchAns.thumbnails;
+        for (let i = 0; i < myNumOfResult; i++){
             let thumbnaile = thumbnails[i];
-            let elementId = "searchResult" + String(i);
-            var sechRes = document.getElementById(elementId);
+            var sechRes = document.createElement("a")
             sechRes.innerHTML  = titles[i];
+            sechRes.addEventListener("click",function(){sendChosenSong(i)});
             var newline = document.createElement("br");
             sechRes.appendChild(newline);
             var img = document.createElement("img");
@@ -211,6 +168,7 @@ function searchSong(SearchTextBy){
             img.width = thumbnaile.width;
             img.height = thumbnaile.height;
             sechRes.appendChild(img);
+            searchResultDiv.appendChild(sechRes);
         }
         openSearchResult();
     })
@@ -226,10 +184,10 @@ function searchSongToKaraoke(){
     replaceSearchFunc();
 }
 
-// function searchSongLyrics(){
-//     searchSong("Lyrics");
-//     replaceSearchFunc();
-// }
+function searchSongLyrics(){
+    searchSong("Lyrics");
+    replaceSearchFunc();
+}
 
 //answer on the search results based on titles and thumbnails 
 function sendChosenSong(sngIndex){
@@ -238,3 +196,104 @@ function sendChosenSong(sngIndex){
 }
 
 
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////// page view functions
+
+function hideFunc(element) {
+    var x = document.getElementById(element);
+    console.log("element x: " + x);
+    if (x.style.display === "none") {
+      x.style.display = "inline-block";
+    } else {
+      x.style.display = "none";
+    }
+  }
+
+function hideFuncMulti(elements) {
+    elements.forEach( (element)=>{
+        console.log("element: " + element);
+        hideFunc(element);
+    })
+}
+
+  function replaceSearchFunc(){
+    hideFuncMulti(["OpenSearch","searchKaraoke","searchSingAlong","SearchBar"]);
+  }
+
+function openSearchResult() {
+    document.getElementById("searchResult").style.width = "100%";
+}
+
+function closeSearchResult() {
+    document.getElementById("searchResult").style.width = "0%";
+    searchResultDiv.replaceChildren();
+}
+
+//sound
+function muteTheMic(){
+    var micPic = document.getElementById("micPic"); 
+    var slider = document.getElementById("microphoneText");    
+    if (micStatus === 1){
+        micStatus = 0;
+        micPic.style.filter = "grayscale(100%)";
+        slider.innerHTML = "off";
+        micStreamOff();
+    }else {
+        micStatus = 1;
+        micPic.style.filter = "grayscale(0%)";
+        slider.innerHTML = "on";
+        micStreamOn();
+    }
+}
+
+
+
+
+
+function setPlayerName(){
+    thisPlayerName = document.getElementById("playerNameInputBar").value;    
+    if (!peerID){
+        console.error("connection failed");
+    }
+    PlayerName.innerHTML = "Player name: " + thisPlayerName;
+    PlayerNameInput.style.display = "none";
+    PlayerName.style.display = "inline-block";
+    hostNameSearch.style.display = "inline-block"; 
+
+    socket.emit("PlayerName", ({"socket":socket.id,"Name" :thisPlayerName, "PeerID": peerID}));
+
+}
+
+function joinHostRoom(){
+
+    thisHostId = hostSearch.value;
+    hostSearch.value = null;
+
+    socket.emit("joinHostRoom", ({"HostId":thisHostId,"PlayerName" :thisPlayerName}));
+    
+    socket.on("playerHostConn", ({"HostId":newHostId,"HostPeer":hostPeer})=>{
+        if (thisHostId === newHostId){
+            socketConnection(thisHostId)
+            connectToNewHost(hostPeer,myVoiceStream)
+
+        }
+    })
+
+    socket.on("couldNotFindHost", (HostId)=>{
+        alert("could Not Find Host: "+HostId);
+    })
+   
+
+}
+
+function socketConnection(hostId){
+    roomName.innerHTML = "Connected to host room : "+hostId;
+    roomName.style.display = "inline-block";
+}

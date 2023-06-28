@@ -6,27 +6,30 @@
     </head>
     
     <body style="text-align: center;">
-        
-<div id="searchResult" class="overlay">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeSearchResult()">&times;</a>
-    <div class="overlay-content">
-        <a id = "searchResult0" ONCLICK="sendChosenSong(0)" ></a>
-        <a id = "searchResult1" ONCLICK="sendChosenSong(1)" ></a>
-        <a id = "searchResult2" ONCLICK="sendChosenSong(2)" ></a>
-        <a id = "searchResult3" ONCLICK="sendChosenSong(3)" ></a>
-        <a id = "searchResult4" ONCLICK="sendChosenSong(4)" ></a>
+        <!-- an overlay window for search results -->
+    <div id="searchResult" class="overlay">
+        <a href="javascript:void(0)" class="closebtn" onclick="sendChosenSong(-1)">&times;</a>
+        <div class="overlay-content" id="searchResultDiv"></div>
     </div>
-  </div>
   
   <div style="text-align: center;">
     <div>
-    <div><h1 id="roomName" style="display: none;">romenumber</h1></div>
-        <div id=hostNameSearch>
+        <div><h1 id="playerName" style="display: none;">Player Name</h1></div>
+        <div id=playerNameInput >
+            <input type="text" class="SearchBar" id="playerNameInputBar" placeholder="Enter player Name">
+            <input type="button" class="PlayerButton" id="playerNameBtn" 
+            value="Enter player name"  ONCLICK="setPlayerName(this)">
+        </div>
+    </div>
+    <div>
+        <div><h1 id="roomName" style="display: none;">roomNumber</h1></div>
+        <div id=hostNameSearch style="display: none">
             <input type="text" class="SearchBar" id="roomNameSearch" placeholder="Connect To Host Room: ">
             <input type="button" class="PlayerButton" id="HostSearcBtn" 
             value="look for host id"  ONCLICK="joinHostRoom(this)">
         </div>
-    </div>
+    </div>    
+</div>
     <br>    
     <label class="search"  >
           <input type="PlayerButton" class="PlayerButton" id="OpenSearch" value="Open Search" ONCLICK="replaceSearchFunc(this)">
@@ -38,12 +41,12 @@
                 value="search karaoke"  style="display: none;" ONCLICK="searchSongToKaraoke(this)">
     </label>
     <br>
-    <img src="mic2.jpg" alt="mic" id ="micPic" style="display: inline-block; filter: grayscale(100%); margin-left: auto;    margin-right: auto;" width="50%" >
+    <img src="mic2.jpg" alt="mic" id ="micPic" style="display: inline-block; margin-left: auto;    margin-right: auto;" width="50%" >
     <label class="switch" >
-        <input type="checkbox" id="microphone" >
+        <input type="checkbox" id="microphone" checked>
         <bou class="voice-slider round" ONCLICK="muteTheMic()" ></span>
         <br>
-        <h1 id="microphoneText">off</h1>
+        <h1 id="microphoneText">on</h1>
     </label>
 </div>
 
