@@ -1,14 +1,20 @@
-// const { default: Peer } = require("peerjs");
-
 ///////////////////////////////////////////////////////////// const and var 
 const socket = io();
 
 var thisUserUid;
-// var localPeerPort = 4001;
-var myPeer = new Peer();
+
+var myPeer = new Peer(
+    undefined,{
+      host: window.location.hostname,
+      port: '4000',
+      path: '/peerjs'
+    });
+     
 var myVoiceStream;
 var currentCall;
-var peerID;
+var connectToColler;
+var peerId;
+var hostPeerId
 var thisPlayerName;
 var thisHostId;
 
@@ -32,8 +38,8 @@ const roomName = document.getElementById("roomName");
 
 //////////////////////////////////////voice setting
 
-// navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia
-//  || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia
+ || navigator.mozGetUserMedia || navigator.msGetUserMedia);
   
 navigator.mediaDevices.getUserMedia({
     video: false,
@@ -43,29 +49,21 @@ navigator.mediaDevices.getUserMedia({
     myPeer.on("call", (call) => {
         currentCall = call;
         call.answer(stream);
-        call.on("stream", () => {
+        call.on("stream", (emptyStream) => {
         });
     });
     socket.on("connected",()=>{
         console.log("NewUser userId: " + socket.id);
 
-
-        socket.on("host-disconnected", (serial)=>{
+        socket.on("hostDisconnected", (serial)=>{
             if (serial==thisHostId){
                 alert("host disconnected")
                 ThisHostId = "?";
                 roomName.innerHTML = "Connected to host room : ?";
                 hostNameSearch.style.display = "inline-block";
                 roomName.style.display = "none";
-
             }
-        })
-
-        // socket.on("hostPeerInfo", (hostPeerId)=>{
-        //     console.log("hostPeerInfo: " + hostPeerId);
-        //     connectToNewHost(hostPeerId , myVoiceStream);
-        // })
-    
+        })  
 
     });
 }).catch(err=>{
@@ -75,21 +73,16 @@ navigator.mediaDevices.getUserMedia({
 
 
 
-function connectToNewHost(hostPeerId, stream) {
-    console.log("connectToNewHost hostPeerId: " + hostPeerId);
+function connectToNewHost(inputHostPeerId, stream) {
+    hostPeerId = inputHostPeerId;
+    console.log("connectToNewHost hostPeerId: " + inputHostPeerId);
     console.log("connectToNewHost stream: " + stream);
-    
-    currentCall = myPeer.call(hostPeerId, stream);
-    currentCall.emit("playerName", thisPlayerName);
+    hostNameSearch.style.display = "none";
 
-    console.log("connectToNewHost currentCall: " + currentCall.toString());
-    
-                hostNameSearch.style.display = "none";
+    // currentCall = myPeer.call(hostPeerId, stream);
+    // myPeer.send(thisPlayerName);
 
-    // const voice = document.createElement("audio");
-    // call.on("stream", (userVideoStream) => {
-    //     // addVoiceStream(voice, userVideoStream);
-    // });
+    // console.log("connectToNewHost currentCall: " + currentCall.toString());
 };
 
 
@@ -104,45 +97,10 @@ function micStreamOn(){
 ///////////////////////////////////////////////////////////// communication settings
 
 myPeer.on("open", (id) => {
-    peerID = id;
+    peerId = id;
+    console.log("open peer", id);
+
 });
-
-
-// myPeer.on('open', function() {
-//     console.log('My PeerJS ID is:', myPeer.id);
-//   });
-
-//   (video, stream) => {
-//     video.srcObject = stream;
-//     video.addEventListener("loadedmetadata", () => {
-//        video.play();
-//        videoGrid.append(video);
-//     });
-// };
-
-
-// socket.on('connected', async (connectionInfo)=> {
-//     thisUserUid = connectionInfo.uid;
-//     port = connectionInfo.port
-//     console.log("new user joined: " + thisUserUid);
-//     SetPeerinfo(port);
-// });
-
-// var conn = peer.connect('another-peers-id');
-
-// let loader = document.createElement("div")
-// loader.classList.add("loader")
-
-
-
-
-
-
-
-
-
-
-
 
 ////////////////////////////////////////////////////////////////// youtube funcs
 function searchSong(SearchTextBy){
@@ -151,9 +109,9 @@ function searchSong(SearchTextBy){
     qry = qry+" "+SearchTextBy;
     console.log(qry);
         ///sending a new song for the server to search
-    socket.emit("searchSong",({"qry":qry,"NumOfResult":myNumOfResult}));
+    socket.emit("searchSong",({"Qry":qry,"NumOfResult":myNumOfResult}));
     //adding results of search to a search overlay
-    socket.on("answer", srchAns =>{
+    socket.on("searchAnswer", srchAns =>{
         titles = srchAns.titles;
         thumbnails =  srchAns.thumbnails;
         for (let i = 0; i < myNumOfResult; i++){
@@ -171,6 +129,9 @@ function searchSong(SearchTextBy){
             searchResultDiv.appendChild(sechRes);
         }
         openSearchResult();
+    })
+    socket.on("noHost",()=>{
+        alert("The player has no host!");
     })
 }
 
@@ -191,17 +152,9 @@ function searchSongLyrics(){
 
 //answer on the search results based on titles and thumbnails 
 function sendChosenSong(sngIndex){
-    socket.emit("ChosenSong",sngIndex);
+    socket.emit("chosenSong",sngIndex);
     closeSearchResult();
 }
-
-
-
-
-
-
-
-
 
 
 ///////////////////////////////////////////////////////////// page view functions
@@ -254,12 +207,9 @@ function muteTheMic(){
 }
 
 
-
-
-
 function setPlayerName(){
     thisPlayerName = document.getElementById("playerNameInputBar").value;    
-    if (!peerID){
+    if (!peerId){
         console.error("connection failed");
     }
     PlayerName.innerHTML = "Player name: " + thisPlayerName;
@@ -267,16 +217,15 @@ function setPlayerName(){
     PlayerName.style.display = "inline-block";
     hostNameSearch.style.display = "inline-block"; 
 
-    socket.emit("PlayerName", ({"socket":socket.id,"Name" :thisPlayerName, "PeerID": peerID}));
+    socket.emit("playerName", ({"Socket":socket.id,"Name" :thisPlayerName, "PeerID": peerId, "location.hostname": window.location.hostname}));
 
 }
 
 function joinHostRoom(){
-
     thisHostId = hostSearch.value;
     hostSearch.value = null;
 
-    socket.emit("joinHostRoom", ({"HostId":thisHostId,"PlayerName" :thisPlayerName}));
+    socket.emit("joinHostRoom", ({"HostId":thisHostId,"PlayerName" :thisPlayerName,"PlayerPeer" :peerId}));
     
     socket.on("playerHostConn", ({"HostId":newHostId,"HostPeer":hostPeer})=>{
         if (thisHostId === newHostId){
@@ -287,6 +236,7 @@ function joinHostRoom(){
     })
 
     socket.on("couldNotFindHost", (HostId)=>{
+        thisHostId = -1;
         alert("could Not Find Host: "+HostId);
     })
    
@@ -296,4 +246,5 @@ function joinHostRoom(){
 function socketConnection(hostId){
     roomName.innerHTML = "Connected to host room : "+hostId;
     roomName.style.display = "inline-block";
+    
 }
